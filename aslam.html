@@ -5,16 +5,529 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>تطبيق تحفيظ القرآن -  </title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+    @font-face {
+      font-family: "SF Pro AR Display";
+      src: url("/mnt/data/الخطوط للتحفيظ.ttf") format("truetype");
+      font-weight: 600;
+      font-style: normal;
+    }
+
+    :root{
+      --primary: #1e3a8a;        /* أزرق غامق */
+      --primary-light: #3b82f6;  /* أزرق فاتح */
+      --secondary: #4B0082;
+      --dark: #0a0a0a;          /* خلفية داكنة أكثر للوضع الليلي */
+      --darker: #050505;
+      --light-bg: #ECE6DD;      /* تم تغيير الخلفية الفاتحة إلى #ECE6DD */
+      --card-bg: rgba(255,255,255,0.95);
+      --text: #1E1E1E;
+      --text-light: #FFFFFF;
+      --accent: #2563eb;        /* أزرق متوسط */
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --glass: rgba(255,255,255,0.6);
+      --shadow: 0 6px 18px rgba(0,0,0,0.08);
+      --radius: 16px;
+
+      --nav-height: 72px;
+      --transition: 300ms cubic-bezier(.2,.9,.3,1);
+    }
+
+    /* DARK THEME via attribute on html */
+    html[data-theme="dark"]{
+      --light-bg: #072C49;      /* تم تغيير الخلفية الداكنة إلى #072C49 */
+      --card-bg: rgba(7, 44, 73, 0.95); /* تم تعديل لون البطاقات ليتناسب مع الخلفية الجديدة */
+      --text: #f8fafc;          /* أبيض فاتح للوضع الليلي - تم التعديل للوضوح */
+      --text-light: #ffffff;    /* أبيض نقي لأقصى درجات الوضوح - تم التعديل */
+      --glass: rgba(255,255,255,0.08); /* زيادة الشفافية قليلاً - تم التعديل */
+      --shadow: 0 10px 30px rgba(0,0,0,0.9);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "SF Pro AR Display", "Segoe UI", Tahoma, system-ui, -apple-system, "Noto Naskh Arabic", "Noto Sans", sans-serif;
+      background: var(--light-bg);
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+      line-height: 1.6;
+    }
+
+    /* APP container */
+    .app{
+      width: 100%;
+      max-width:420px;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+      background: var(--light-bg);
+    }
+    /* topbar */
+    .topbar{
+      height:70px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      padding:10px 20px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      color: #fff;
+      border-bottom-left-radius:24px;
+      border-bottom-right-radius:24px;
+      box-shadow: var(--shadow);
+    }
+    .hamburger{
+      font-size:20px;
+      background:transparent;
+      border: none;
+      color:inherit;
+      cursor:pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+    }
+    .hamburger:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .profile {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-profile:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    .user-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .notification {
+      margin-right: auto; /* لأن الاتجاه RTL */
+      position: relative;
+      cursor: pointer;
+    }
+
+    .notification:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      background: var(--accent);
+      color: rgb(255, 255, 255);
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* main content */
+    .container{
+      padding:20px;
+      padding-bottom: calc(var(--nav-height) + 24px);
+      display:block;
+    }
+    
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* لوحة الإعلان */
+    .ad-banner {
+      background: linear-gradient(135deg, #1e40af, #3b82f6); /* تدرج أزرق احترافي */
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      color: white;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .ad-content h3 {
+      margin: 0 0 6px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .ad-content p {
+      margin: 0;
+      font-size: 13px;
+      opacity: 0.9;
+      line-height: 1.4;
+    }
+    .ad-action {
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.4);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-weight: 600;
+      white-space: nowrap;
+      backdrop-filter: blur(10px);
+    }
+    .ad-action:hover {
+      background: rgba(255,255,255,0.35);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* بطاقة ابدأ بتعلم الفاتحة */
+    .learn-card {
+      background: linear-gradient(135deg, var(--primary-light), var(--primary));
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      color: white;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all var(--transition);
+      min-height: 80px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .learn-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .learn-content h3 {
+      margin: 0 0 4px 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .learn-content p {
+      margin: 0;
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    .learn-arrow {
+      font-size: 18px;
+      opacity: 0.8;
+      transition: all var(--transition);
+    }
+    .learn-card:hover .learn-arrow {
+      transform: translateX(-5px);
+    }
+
+    /* cards */
+    .big-card{
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding:20px;
+      box-shadow: var(--shadow);
+      margin-bottom:16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .big-card h2{
+      margin:0 0 12px 0;
+      font-size: 18px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .time-row{
+      display:flex;
+      gap:12px;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .time-col small{display:block; color:var(--text); opacity: 0.7; font-size:12px; margin-bottom: 4px;}
+    .big-num{font-size:20px; font-weight: 700;}
+    .accent{color:var(--accent)}
+
+    .progress-container {
+      margin-top: 16px;
+    }
+    .progress-bar {
+      height: 8px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+      width: 100%;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--primary));
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    /* start card */
+    .start-card{
+      background:var(--card-bg);
+      border-radius: var(--radius);
+      padding:20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .start-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .start-header h3{
+      margin:0;
+      font-size: 18px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .session-info {
+      position: relative;
+      cursor: pointer;
+      color: var(--primary);
+    }
+    .info-tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      background: var(--dark);
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      width: 220px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      line-height: 1.5;
+    }
+    .session-info:hover .info-tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+    .actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .action{
+      flex: 1 1 calc(33.333% - 8px);
+      min-width: 100px;
+      padding: 16px 8px;
+      border-radius:12px;
+      background:transparent;
+      border:1px solid rgba(0,0,0,0.08);
+      cursor:pointer;
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+    }
+    .action:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      border-color: var(--primary-light);
+      background: rgba(59, 130, 246, 0.05);
+    }
+    
+    /* تكملة الكود المقطوع وإضافة الستايلات الناقصة */
+    .action-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-light), var(--primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 420px;
+      height: var(--nav-height);
+      background: var(--card-bg);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 1px solid rgba(0,0,0,0.05);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+
+    .nav-item {
+      background: none;
+      border: none;
+      color: var(--text);
+      opacity: 0.5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .nav-item.active { opacity: 1; color: var(--accent); }
+    .nav-item .icon { font-size: 20px; margin-bottom: 4px; }
+
+    /* Side Menu & Overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+    .overlay.hidden { display: none; opacity: 0; }
+    
+    .side-menu {
+      position: fixed;
+      top: 0; right: 0;
+      width: 280px; height: 100%;
+      background: var(--card-bg);
+      z-index: 1000;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    }
+    .side-menu.hidden { transform: translateX(100%); }
+    
+    .side-header {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .side-header .avatar img { width: 50px; height: 50px; border-radius: 50%; }
+    .side-user { display: flex; flex-direction: column; }
+    .btn-close { margin-right: auto; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text); }
+    
+    .side-nav { padding: 10px 0; display: flex; flex-direction: column; }
+    .side-item {
+      padding: 15px 20px; background: none; border: none; text-align: right;
+      font-size: 16px; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 15px;
+    }
+    .side-item:hover { background: rgba(0,0,0,0.05); }
+    .side-divider { height: 1px; background: rgba(0,0,0,0.05); margin: 10px 0; }
+    
+    /* Toggle Switch */
+    .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 22px; }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--accent); }
+    input:checked + .slider:before { transform: translateX(18px); }
+
+    /* Other Sections Styling (Teachers, Stats, Plans, Library) */
+    h2 { margin-top: 0; color: var(--primary); }
+    .muted { color: var(--text); opacity: 0.6; font-size: 14px; }
+    
+    .teachers-grid, .stats-cards { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+    .teacher-card, .stat-card, .plan-card, .library-item {
+      background: var(--card-bg);
+      padding: 15px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .teacher-card { text-align: center; }
+    .teacher-avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--primary-light); color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 10px; }
+    .teacher-rating { color: #f59e0b; margin-bottom: 15px; }
+    .contact-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; width: 100%; transition: all 0.3s; }
+    .contact-btn:hover { background: var(--primary); }
+
+    .stat-card { display: flex; align-items: center; gap: 15px; }
+    .stat-icon { width: 50px; height: 50px; border-radius: 12px; background: rgba(37, 99, 235, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .stat-content h4 { margin: 0 0 5px 0; font-size: 18px; }
+    .stat-content p { margin: 0; color: var(--text); opacity: 0.7; font-size: 14px; }
+
+    .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .add-plan-btn { background: rgba(37, 99, 235, 0.1); color: var(--accent); border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; gap: 5px; align-items: center; }
+    
+    .plan-cards { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+    .plan-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .plan-card-header h4 { margin: 0; }
+    .plan-actions button { background: none; border: none; cursor: pointer; padding: 5px; color: var(--text); opacity: 0.6; }
+    .plan-actions button:hover { opacity: 1; color: var(--accent); }
+    .plan-actions .delete-plan:hover { color: var(--danger); }
+    .plan-progress span { font-size: 12px; color: var(--text); opacity: 0.8; }
+    .plan-goal { margin-top: 10px; font-size: 14px; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 8px; }
+
+    /* Modal */
+    .modal { position: fixed; inset: 0; z-index: 1001; display: flex; align-items: center; justify-content: center; }
+    .modal-content { background: var(--card-bg); width: 90%; max-width: 400px; border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h3 { margin: 0; }
+    .close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text); }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: var(--light-bg); color: var(--text); font-family: inherit; }
+    .submit-plan { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+
+    /* Library */
+    .library-categories { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin: 20px 0; scrollbar-width: none; }
+    .library-categories::-webkit-scrollbar { display: none; }
+    .category-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.1); background: transparent; color: var(--text); cursor: pointer; transition: all 0.3s; }
+    .category-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    
+    .library-content { display: flex; flex-direction: column; gap: 15px; }
+    .library-item { display: flex; align-items: center; gap: 15px; }
+    .item-icon { width: 45px; height: 45px; border-radius: 50%; background: rgba(37, 99, 235, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .item-content { flex: 1; }
+    .item-content h4 { margin: 0 0 5px 0; font-size: 16px; }
+    .item-content p { margin: 0 0 5px 0; font-size: 13px; line-height: 1.4; }
+    .item-reference { font-size: 11px; color: var(--text); opacity: 0.6; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; }
+    .item-action { background: none; border: none; color: var(--text); opacity: 0.4; cursor: pointer; font-size: 18px; }
+    .item-action:hover { opacity: 1; color: var(--accent); }
+  </style>
 </head>
 <body>
 
-  <!-- SIDE MENU / HAMBURGER -->
   <div id="overlay" class="overlay hidden"></div>
   <aside id="sideMenu" class="side-menu hidden" aria-hidden="true">
     <div class="side-header">
       <div class="avatar">
-        <img src="azampo.jpg" alt="avatar" />
+        <img src="azampo.jpg" alt="avatar" onerror="this.src='https://via.placeholder.com/50'" />
       </div>
       <div class="side-user">
         <strong>اهلا عزام بن سليمان</strong>
@@ -39,7 +552,7 @@
         <span>خطتي</span>
       </button>
       <div class="side-divider"></div>
-      <div class="side-item row">
+      <div class="side-item row" style="justify-content: space-between;">
         <span>الوضع الليلي</span>
         <label class="switch">
           <input id="themeToggle" type="checkbox" />
@@ -58,7 +571,6 @@
     </nav>
   </aside>
 
-  <!-- APP FRAME -->
   <div class="app">
     <header class="topbar">
       <button id="hamburger" class="hamburger" aria-label="قائمة">
@@ -67,7 +579,7 @@
       
       <div class="profile">
         <div class="user-profile">
-          <img src="azampo.jpg" alt="عزام" class="user-avatar" />
+          <img src="azampo.jpg" alt="عزام" class="user-avatar" onerror="this.src='https://via.placeholder.com/36'" />
           <span class="user-name">اهلا عزام بن سليمان</span>
         </div>
         <div class="notification">
@@ -78,9 +590,7 @@
     </header>
 
     <main class="container">
-      <!-- main cards / content -->
       <section id="homePage" class="page active">
-        <!-- لوحة الإعلان -->
         <div class="ad-banner">
           <div class="ad-content">
             <h3>📢 إعلان هام من المشرف</h3>
@@ -89,7 +599,6 @@
           <button class="ad-action">تعرف أكثر</button>
         </div>
 
-        <!-- بطاقة ابدأ بتعلم الفاتحة -->
         <div class="learn-card">
           <div class="learn-content">
             <h3>ابدأ بتعلم الفاتحة</h3>
@@ -100,7 +609,6 @@
           </div>
         </div>
 
-        <!-- بطاقة الوقت المحسنة -->
         <div class="big-card">
           <h2>المسار: مقرأتك عام</h2>
           <div class="time-row">
@@ -117,11 +625,10 @@
             <div class="progress-bar">
               <div class="progress-fill" style="width: 60%"></div>
             </div>
-            <p class="muted">إجمالي الرصيد: 30 دقيقة</p>
+            <p class="muted" style="margin: 5px 0 0 0; font-size: 12px;">إجمالي الرصيد: 30 دقيقة</p>
           </div>
         </div>
 
-        <!-- بطاقة ابدأ جلستك المحسنة -->
         <div class="start-card">
           <div class="start-header">
             <h3>ابدأ جلستك</h3>
@@ -271,7 +778,6 @@
           </div>
         </div>
 
-        <!-- نموذج إضافة خطة جديدة -->
         <div id="planModal" class="modal hidden">
           <div class="modal-content">
             <div class="modal-header">
@@ -375,7 +881,6 @@
       </section>
     </main>
 
-    <!-- BOTTOM NAV -->
     <nav class="bottom-nav" role="navigation" aria-label="قائمة التنقل السفلية">
       <button class="nav-item active" data-target="homePage" aria-label="الرئيسية">
         <span class="icon"><i class="fas fa-home"></i></span>
@@ -393,10 +898,333 @@
         <span class="icon"><i class="fas fa-calendar-alt"></i></span>
         <span class="label">خطتي</span>
       </button>
-     
+      <button class="nav-item" data-target="libraryPage" aria-label="المكتبة">
+        <span class="icon"><i class="fas fa-book-open"></i></span>
+        <span class="label">المكتبة</span>
+      </button>
     </nav>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    // elements
+    const hamburger = document.getElementById('hamburger');
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('overlay');
+    const closeMenu = document.getElementById('closeMenu');
+    const themeToggle = document.getElementById('themeToggle');
+    const navItems = document.querySelectorAll('.nav-item');
+    const pages = document.querySelectorAll('.page');
+    const openPlanBtn = document.getElementById('openPlan');
+    const openPlanFromMenu = document.getElementById('openPlanFromMenu');
+
+    // عناصر إدارة الخطط
+    const addPlanBtn = document.getElementById('addPlanBtn');
+    const planModal = document.getElementById('planModal');
+    const closeModal = document.getElementById('closeModal');
+    const submitPlanBtn = document.getElementById('submitPlanBtn');
+    const planCardsContainer = document.getElementById('planCardsContainer');
+    const modalTitle = document.getElementById('modalTitle');
+
+    // عناصر مكتبة الأدعية
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    const libraryItems = document.querySelectorAll('.library-item');
+
+    // حالة التطبيق
+    let currentEditingPlanId = null;
+    let planIdCounter = 3; // البدء من 3 لأن لدينا خطة مبدئية
+
+    // UTILS
+    function showSideMenu(){
+      sideMenu.classList.remove('hidden');
+      overlay.classList.remove('hidden');
+      sideMenu.setAttribute('aria-hidden','false');
+    }
+
+    function hideSideMenu(){
+      sideMenu.classList.add('hidden');
+      overlay.classList.add('hidden');
+      sideMenu.setAttribute('aria-hidden','true');
+    }
+
+    // theme persistence
+    const THEME_KEY = 'app-theme';
+    function applyTheme(theme){
+      if(theme === 'dark'){
+        document.documentElement.setAttribute('data-theme','dark');
+        themeToggle.checked = true;
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggle.checked = false;
+      }
+      localStorage.setItem(THEME_KEY, theme);
+    }
+
+    const saved = localStorage.getItem(THEME_KEY) || 'light';
+    applyTheme(saved);
+
+    // bottom nav actions
+    navItems.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        // set active visually
+        navItems.forEach(n => n.classList.remove('active'));
+        btn.classList.add('active');
+
+        // show correct page
+        pages.forEach(p => p.classList.remove('active'));
+        const targetEl = document.getElementById(target);
+        if(targetEl) pShow(targetEl);
+      });
+    });
+
+    // common function to show page
+    function pShow(el){
+      el.classList.add('active');
+    }
+
+    // Plan loading flow - بدون تحميل
+    function openPlanFlow(){
+      // activate plan page and bottom nav highlight
+      navItems.forEach(n => n.classList.remove('active'));
+      const planNav = Array.from(navItems).find(n => n.dataset.target === 'planPage');
+      if(planNav) planNav.classList.add('active');
+
+      pages.forEach(p => p.classList.remove('active'));
+      const planPg = document.getElementById('planPage');
+      if(planPg) planPg.classList.add('active');
+
+      // close side menu if open
+      hideSideMenu();
+    }
+
+    // Modal functionality
+    function openPlanModal(planId = null) {
+      currentEditingPlanId = planId;
+      
+      if (planId) {
+        // وضع التعديل
+        modalTitle.textContent = 'تعديل الخطة';
+        const planCard = document.querySelector(`[data-plan-id="${planId}"]`);
+        const title = planCard.querySelector('h4').textContent;
+        const goal = planCard.querySelector('.plan-goal').textContent.replace('الهدف:', '').trim();
+        
+        document.getElementById('planTitle').value = title;
+        document.getElementById('planGoal').value = goal;
+      } else {
+        // وضع الإضافة
+        modalTitle.textContent = 'إضافة خطة جديدة';
+        document.getElementById('planTitle').value = '';
+        document.getElementById('planGoal').value = '';
+        document.getElementById('planDuration').value = '4';
+      }
+      
+      planModal.classList.remove('hidden');
+      overlay.classList.remove('hidden');
+    }
+
+    function closePlanModal() {
+      planModal.classList.add('hidden');
+      overlay.classList.add('hidden');
+      currentEditingPlanId = null;
+    }
+
+    function submitPlan() {
+      const planTitle = document.getElementById('planTitle').value.trim();
+      const planGoal = document.getElementById('planGoal').value.trim();
+      
+      if(!planTitle || !planGoal) {
+        alert('يرجى ملء جميع الحقول المطلوبة');
+        return;
+      }
+      
+      if (currentEditingPlanId) {
+        // تحديث الخطة الموجودة
+        updatePlan(currentEditingPlanId, planTitle, planGoal);
+      } else {
+        // إضافة خطة جديدة
+        addNewPlan(planTitle, planGoal);
+      }
+      
+      closePlanModal();
+    }
+
+    function addNewPlan(title, goal) {
+      const planId = planIdCounter++;
+      
+      const newPlanCard = document.createElement('div');
+      newPlanCard.className = 'plan-card';
+      newPlanCard.setAttribute('data-plan-id', planId);
+      newPlanCard.innerHTML = `
+        <div class="plan-card-header">
+          <h4>${title}</h4>
+          <div class="plan-actions">
+            <button class="edit-plan" data-plan-id="${planId}"><i class="fas fa-edit"></i></button>
+            <button class="delete-plan" data-plan-id="${planId}"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+        <div class="plan-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 0%"></div>
+          </div>
+          <span>0% مكتمل</span>
+        </div>
+        <div class="plan-goal">
+          <strong>الهدف:</strong> ${goal}
+        </div>
+      `;
+      
+      planCardsContainer.appendChild(newPlanCard);
+      attachPlanEventListeners(newPlanCard);
+    }
+
+    function updatePlan(planId, title, goal) {
+      const planCard = document.querySelector(`[data-plan-id="${planId}"]`);
+      if (planCard) {
+        planCard.querySelector('h4').textContent = title;
+        planCard.querySelector('.plan-goal').innerHTML = `<strong>الهدف:</strong> ${goal}`;
+      }
+    }
+
+    function deletePlan(planId) {
+      if (confirm('هل أنت متأكد من حذف هذه الخطة؟')) {
+        const planCard = document.querySelector(`[data-plan-id="${planId}"]`);
+        if (planCard) {
+          planCard.remove();
+        }
+      }
+    }
+
+    function attachPlanEventListeners(planCard) {
+      const planId = planCard.getAttribute('data-plan-id');
+      const editBtn = planCard.querySelector('.edit-plan');
+      const deleteBtn = planCard.querySelector('.delete-plan');
+      
+      if(editBtn) editBtn.addEventListener('click', () => openPlanModal(planId));
+      if(deleteBtn) deleteBtn.addEventListener('click', () => deletePlan(planId));
+    }
+
+    // مكتبة الأدعية والأحاديث
+    function filterLibrary(category) {
+      libraryItems.forEach(item => {
+        if (category === 'all' || item.getAttribute('data-category') === category) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // إضافة المستمعين للأحداث
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        hideSideMenu();
+        closePlanModal();
+      }
+    });
+
+    hamburger.addEventListener('click', showSideMenu);
+    closeMenu.addEventListener('click', hideSideMenu);
+
+    themeToggle.addEventListener('change', () => {
+      applyTheme(themeToggle.checked ? 'dark' : 'light');
+    });
+
+    // wire plan openers
+    if(openPlanBtn) openPlanBtn.addEventListener('click', openPlanFlow);
+    if(openPlanFromMenu) openPlanFromMenu.addEventListener('click', openPlanFlow);
+
+    // إدارة الخطط
+    if(addPlanBtn) addPlanBtn.addEventListener('click', () => openPlanModal());
+    if(closeModal) closeModal.addEventListener('click', closePlanModal);
+    if(submitPlanBtn) submitPlanBtn.addEventListener('click', submitPlan);
+
+    // مكتبة الأدعية
+    categoryBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        categoryBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const category = this.getAttribute('data-category');
+        filterLibrary(category);
+      });
+    });
+
+    // keyboard accessibility: ESC to close side menu and modal
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape') {
+        hideSideMenu();
+        closePlanModal();
+      }
+    });
+
+    // إضافة المستمعين للخطط الموجودة مسبقًا
+    document.querySelectorAll('.plan-card').forEach(card => {
+      attachPlanEventListeners(card);
+    });
+
+    // تحسينات إضافية: إضافة تأثيرات عند التمرير
+    document.addEventListener('DOMContentLoaded', function() {
+      // إضافة زر المكتبة أسفل إذا لم يكن موجودًا لكي يربط الصفحات بشكل كامل
+      // تم إضافته بالفعل في HTML فوق
+
+      // إضافة تأثيرات للبطاقات عند التمرير
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+      
+      const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, observerOptions);
+      
+      // تطبيق التأثير على البطاقات
+      const cards = document.querySelectorAll('.ad-banner, .learn-card, .big-card, .start-card, .feature-card, .teacher-card, .stat-card, .plan-card, .library-item');
+      cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        observer.observe(card);
+      });
+      
+      // إضافة تأثيرات للتنقل السفلي تم دمجها مع الكود الرئيسي للأعلى
+    });
+
+    // تحسينات للتفاعل مع الأزرار
+    document.querySelectorAll('.action, .contact-btn, .ad-action, .item-action').forEach(button => {
+      button.addEventListener('click', function() {
+        // تأثير النقر على الأزرار
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 150);
+      });
+    });
+
+    // إضافة تأثيرات للجرس
+    const notification = document.querySelector('.notification');
+    if (notification) {
+      notification.addEventListener('click', function() {
+        this.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 200);
+      });
+    }
+
+    // تأثير لبطاقة ابدأ بتعلم الفاتحة
+    const learnCard = document.querySelector('.learn-card');
+    if (learnCard) {
+      learnCard.addEventListener('click', function() {
+        this.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 150);
+      });
+    }
+  </script>
 </body>
 </html>
