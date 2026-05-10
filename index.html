@@ -9,22 +9,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- GSAP for Ultra-Smooth & Fast Animations -->
+    <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
     <style>
         :root {
-            --bg: #000000;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --card-hover: rgba(255, 255, 255, 0.1);
-            --border: rgba(255, 255, 255, 0.15);
-            --border-hover: rgba(255, 255, 255, 0.5);
+            --bg: #050505;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --card-hover: rgba(255, 255, 255, 0.12);
+            --border: rgba(255, 255, 255, 0.2);
+            --border-hover: rgba(255, 255, 255, 0.6);
             --text: #ffffff;
-            --text-dim: #c0c0c8;
         }
 
-        * { 
-            margin: 0; padding: 0; box-sizing: border-box; 
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -40,75 +39,47 @@
             padding: 40px 15px;
         }
 
-        /* ---------------- Background ---------------- */
         .bg-canvas {
             position: fixed;
             inset: 0;
             z-index: -1;
-            background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #000000 100%);
+            background: radial-gradient(circle at 50% 50%, #0f0f0f 0%, #000000 100%);
         }
 
-        .glow-sphere {
-            position: absolute;
-            width: 70vw;
-            height: 70vw;
-            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
-            top: -15%;
-            right: -10%;
-            filter: blur(80px);
-            pointer-events: none;
-        }
-
-        /* ---------------- Header ---------------- */
         header {
             text-align: center;
             margin-bottom: 50px;
             width: 100%;
-            opacity: 0;
-            transform: translateY(-15px);
         }
 
         header h1 {
             font-size: clamp(2.8rem, 10vw, 4.2rem);
             font-weight: 900;
             font-family: 'IBM Plex Sans Arabic', sans-serif;
-            background: linear-gradient(180deg, #ffffff 40%, #666666 100%);
+            background: linear-gradient(180deg, #ffffff 50%, #aaaaaa 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 20px;
-            letter-spacing: -1px;
         }
 
         .contact-bar {
             display: flex;
             justify-content: center;
             gap: 25px;
-            background: rgba(255, 255, 255, 0.07);
-            padding: 18px 40px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 35px;
             border-radius: 100px;
             border: 1px solid var(--border);
-            backdrop-filter: blur(40px);
+            backdrop-filter: blur(20px);
             width: fit-content;
             margin: 0 auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
 
-        .contact-bar a, .contact-bar div { 
-            color: var(--text-dim); 
-            font-size: 1.5rem; 
-            transition: 0.25s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        .contact-bar a, .contact-bar div {
+            color: #fff;
+            font-size: 1.4rem;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
-        }
-        .contact-bar a:hover, .contact-bar div:hover { color: #fff; transform: scale(1.3); }
-
-        /* ---------------- Bento Grid ---------------- */
-        #main-content {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            z-index: 10;
         }
 
         .container {
@@ -117,388 +88,208 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
-            padding-bottom: 80px;
         }
 
         .bento-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 40px;
-            padding: 40px 25px;
+            border-radius: 35px;
+            padding: 35px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 22px;
-            backdrop-filter: blur(50px);
+            gap: 18px;
+            backdrop-filter: blur(30px);
             cursor: pointer;
-            transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            position: relative;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        .bento-card:hover { 
-            transform: translateY(-8px); 
+        .bento-card:hover:not(.static) {
+            transform: scale(1.03) translateY(-8px);
             border-color: var(--border-hover);
             background: var(--card-hover);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.7);
         }
 
-        .bento-card i { font-size: 2.8rem; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        .bento-card span { font-size: 1.2rem; font-weight: 800; color: #fff; text-align: center; }
+        .bento-card i { font-size: 2.8rem; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.4); }
+        .bento-card span { font-size: 1.2rem; font-weight: 800; }
 
-        .tech-box { grid-column: span 2; }
-        
+        /* لغات البرمجة مظهر فقط */
+        .static { cursor: default; }
         .tech-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px 15px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px 15px;
             width: 100%;
-            margin-top: 35px;
+            margin-top: 25px;
+            pointer-events: none;
         }
-        
-        .tech-item { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .tech-item img { width: 45px; height: 45px; object-fit: contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); transition: 0.3s; }
-        .tech-item span { font-size: 0.9rem; color: var(--text-dim); font-weight: 700; }
+        .tech-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .tech-item img { 
+            width: 42px; height: 42px; object-fit: contain; 
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
+        }
+        .tech-item span { font-size: 0.8rem; font-weight: 600; }
 
-        /* ---------------- Modal System ---------------- */
+        /* Modal */
         .modal {
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.98);
             z-index: 2000;
             display: none;
-            padding: 60px 20px;
+            padding: 40px 20px;
             overflow-y: auto;
-            backdrop-filter: blur(70px);
+            backdrop-filter: blur(30px);
         }
-
         .modal-content { max-width: 550px; margin: 0 auto; }
-        
         .close-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid var(--border);
-            color: white;
-            padding: 14px 35px;
-            border-radius: 100px;
-            margin-bottom: 40px;
-            cursor: pointer;
-            font-weight: 900;
-            transition: 0.2s;
-            font-family: 'Cairo', sans-serif;
-            font-size: 1rem;
-        }
-        .close-btn:hover { background: #fff; color: #000; }
-
-        .modal h2 { 
-            font-size: 2.6rem; 
-            margin-bottom: 40px; 
-            border-right: 12px solid #fff; 
-            padding-right: 25px; 
-            font-family: 'IBM Plex Sans Arabic', sans-serif; 
+            background: #fff; border: none; color: #000; padding: 12px 35px;
+            border-radius: 100px; margin-bottom: 30px; cursor: pointer; font-weight: 800;
         }
 
         .item-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 25px;
-            border-radius: 30px;
-            margin-bottom: 15px;
-            transition: 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px; border-radius: 30px; margin-bottom: 20px;
         }
 
-        .launch-btn {
-            background: linear-gradient(45deg, #fff, #ddd);
-            color: #000;
-            padding: 18px 50px;
-            border-radius: 100px;
-            font-size: 1.4rem;
-            font-weight: 900;
-            cursor: pointer;
-            border: none;
-            margin-top: 30px;
-            width: 100%;
-            transition: 0.3s;
-            font-family: 'Cairo', sans-serif;
-            box-shadow: 0 10px 30px rgba(255,255,255,0.2);
-        }
-
-        /* ---------------- iPhone Simulation UI ---------------- */
-        #iphone-environment {
+        /* Simulator */
+        #sim-overlay {
             position: fixed;
             inset: 0;
-            z-index: 3000;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(20px);
+            background: #000;
+            z-index: 5000;
             display: none;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
-            gap: 30px;
         }
-
         .iphone-device {
-            width: 340px;
-            height: 690px;
-            background: #000;
-            border-radius: 55px;
-            box-shadow: 0 0 0 12px #222, 0 30px 60px rgba(0,0,0,0.8), inset 0 0 15px rgba(255,255,255,0.2);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            background-image: radial-gradient(circle at top right, #1a0033 0%, #000000 70%);
+            width: 320px; height: 680px; background: #000; border-radius: 50px;
+            border: 8px solid #333; position: relative; overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0,0,0,1);
         }
-
-        .dynamic-island {
-            width: 120px;
-            height: 35px;
-            background: #000;
-            border-radius: 20px;
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
+        .iphone-screen {
+            height: 100%; padding: 50px 20px;
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop') center/cover;
+            display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: min-content; gap: 20px;
         }
-
-        .iphone-status-bar {
-            width: 100%;
-            padding: 22px 25px 0;
-            display: flex;
-            justify-content: space-between;
-            font-family: sans-serif;
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-            z-index: 50;
+        .app-layer {
+            position: absolute; inset: 0; background: #fff; z-index: 400;
+            display: none; flex-direction: column;
         }
-
-        .iphone-screen-content {
-            flex: 1;
-            padding: 80px 20px 20px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-auto-rows: min-content;
-            gap: 20px 15px;
+        .app-iframe { width: 100%; flex: 1; border: none; }
+        .home-indicator {
+            width: 120px; height: 5px; background: #000; border-radius: 10px;
+            margin: 10px auto; cursor: pointer;
         }
-
-        /* App Icon Style */
-        .app-icon-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .app-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 14px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden; /* لقص الصورة داخل الأيقونة */
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: 0.2s;
-        }
-
-        /* حقل الصورة للأيقونة */
-        .app-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .app-icon i { font-size: 1.8rem; color: white; }
-
-        .app-icon-wrapper span { 
-            font-size: 0.7rem; 
-            color: #fff; 
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        /* Opened App Overlay */
-        .app-opened-view {
-            position: absolute;
-            inset: 0;
-            background: #fff;
-            z-index: 200;
-            transform: translateY(100%);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .app-iframe {
-            width: 100%;
-            flex: 1;
-            border: none;
-        }
-
-        .home-indicator-app {
-            width: 130px;
-            height: 5px;
-            background: #000;
-            border-radius: 5px;
-            margin: 10px auto;
-        }
-
-        .exit-btn {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 100px;
-            cursor: pointer;
-            border: 1px solid var(--border);
-            font-family: 'Cairo', sans-serif;
-        }
-
     </style>
 </head>
 <body>
 
-    <div class="bg-canvas">
-        <div class="glow-sphere"></div>
-    </div>
+    <div class="bg-canvas"></div>
 
-    <div id="main-content">
-        <header id="mainHeader">
-            <h1>عزام المعيي</h1>
-            <div class="contact-bar">
-                <a href="mailto:azamred3@gmail.com"><i class="fa-solid fa-envelope"></i></a>
-                <div onclick="openM('cv')"><i class="fa-solid fa-file-invoice"></i></div>
-                <a href="https://wa.me/966503337182" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
-                <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-            </div>
-        </header>
+    <header>
+        <h1>عزام المعيي</h1>
+        <div class="contact-bar">
+            <a href="mailto:azamred3@gmail.com"><i class="fa-solid fa-envelope"></i></a>
+            <div onclick="openM('cv')"><i class="fa-solid fa-file-invoice"></i></div>
+            <a href="https://wa.me/966503337182" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="https://linkedin.com/in/azam-al-moee" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
+    </header>
 
-        <div class="container">
-            <div class="bento-card" style="grid-column: span 2;" onclick="openM('about')">
-                <i class="fa-solid fa-user-astronaut"></i>
-                <span>الهدف المهني والنبذة</span>
-            </div>
-            <div class="bento-card" onclick="openM('work')">
-                <i class="fa-solid fa-briefcase"></i>
-                <span>الخبرات العملية</span>
-            </div>
-            <div class="bento-card" onclick="openM('projects')">
-                <i class="fa-solid fa-code-merge"></i>
-                <span>الأعمال والمشاريع</span>
+    <div class="container">
+        <div class="bento-card" style="grid-column: span 2;" onclick="openM('about')">
+            <i class="fa-solid fa-user-astronaut"></i>
+            <span>الهدف المهني والنبذة</span>
+        </div>
+
+        <div class="bento-card" style="grid-column: span 2;" onclick="openM('projects')">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>الأعمال والمشاريع</span>
+        </div>
+
+        <div class="bento-card static" style="grid-column: span 2;">
+            <span style="margin-bottom: 10px;">لغات البرمجة والتقنيات</span>
+            <div class="tech-grid">
+                <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"><span>HTML5</span></div>
+                <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg"><span>CSS3</span></div>
+                <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"><span>JS</span></div>
+                <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"><span>Python</span></div>
+                <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg"><span>C++</span></div>
+                <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg"><span>PHP</span></div>
+                <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kotlin/kotlin-original.svg"><span>Kotlin</span></div>
+                <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swift/swift-original.svg"><span>Swift</span></div>
             </div>
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modals -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <button class="close-btn" onclick="closeM()">إغلاق</button>
-            <h2 id="mT"></h2>
+            <h2 id="mT" style="font-size: 2.2rem; margin-bottom: 25px; font-family: 'IBM Plex Sans Arabic';"></h2>
             <div id="mB"></div>
         </div>
     </div>
 
-    <!-- iPhone Environment -->
-    <div id="iphone-environment">
-        <div class="iphone-device" id="iphone-device">
-            <div class="dynamic-island"></div>
-            <div class="iphone-status-bar">
-                <span>12:45</span>
-                <span><i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-battery-full"></i></span>
-            </div>
-            
-            <div class="iphone-screen-content">
-                
-                <!-- التطبيق الأول: Router Speed -->
-                <div class="app-icon-wrapper" onclick="openApp('RouterSpeed.html')">
-                    <div class="app-icon">
-                        <!-- ضع رابط أيقونة تطبيق Router Speed هنا -->
-                        <!--  -->
-                        <img src="ROUTERSPEED.png" alt="RouterSpeed">
+    <!-- Simulator -->
+    <div id="sim-overlay">
+        <div class="iphone-device">
+            <div class="iphone-screen">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;" onclick="openApp('RouterSpeed.html')">
+                    <div style="width: 55px; height: 55px; border-radius: 12px; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <img src="ROUTERSPEED.png" style="width: 100%;">
                     </div>
-                    <span>Router Speed</span>
+                    <span style="font-size: 0.75rem; color: #fff; font-weight: 600;">Router Speed</span>
                 </div>
-
-                <!-- تطبيق إضافي كمثال -->
-                <div class="app-icon-wrapper" onclick="alert('تطبيق تجريبي قادم')">
-                    <div class="app-icon" style="background: linear-gradient(135deg, #FF3B30, #FF9500);">
-                        <i class="fa-solid fa-fire"></i>
-                    </div>
-                    <span>مشروع 2</span>
-                </div>
-
             </div>
 
-            <!-- Opened App Area -->
-            <div class="app-opened-view" id="app-view">
-                <iframe id="app-iframe" class="app-iframe" src=""></iframe>
-                <div style="cursor:pointer" onclick="closeApp()">
-                    <div class="home-indicator-app"></div>
-                </div>
+            <div class="app-layer" id="appLayer">
+                <iframe id="appIframe" class="app-iframe"></iframe>
+                <div class="home-indicator" onclick="closeApp()"></div>
             </div>
         </div>
-        <button class="exit-btn" onclick="exitIphoneMode()">خروج من المحاكاة</button>
+        <button class="close-btn" style="margin-top: 30px; background: transparent; color: #fff; border: 1px solid #fff;" onclick="exitSim()">خروج من المحاكاة</button>
     </div>
 
     <script>
         const data = {
-            about: { t: "النبذة والهدف", b: `<div class="item-card"><h3>الهدف</h3><p>بناء تجارب رقمية لا تُنسى.</p></div>` },
-            work: { t: "الخبرات", b: `<div class="item-card"><h3>مطور ويب</h3><p>خبرة في حلول الربط البرمجي.</p></div>` },
-            projects: {
-                t: "الأعمال الذكية",
-                b: `
-                <div style="text-align:center;">
-                    <p>هذه الأعمال هي محاكاة تفاعلية لتصاميمي داخل بيئة آيفون.</p>
-                    <button class="launch-btn" onclick="startIphoneSimulation()">انطلق للمحاكاة 🚀</button>
-                </div>`
+            about: {
+                t: "النبذة والهدف",
+                b: `<div class="item-card"><h3>رؤيتي</h3><p>أسعى لدمج الإبداع الفني مع الكفاءة التقنية.</p></div>`
             },
-            cv: { t: "CV", b: `<p>تحميل السيرة الذاتية لعام 2024.</p>` }
+            projects: {
+                t: "الأعمال والمشاريع",
+                b: `<div class="item-card"><h3>محاكاة النظام</h3><p>تجربة حية للأنظمة التي أقوم ببنائها.</p><button class="close-btn" style="width: 100%; margin-top: 20px;" onclick="launchSim()">تشغيل المحاكي</button></div>`
+            },
+            cv: {
+                t: "السيرة الذاتية",
+                b: `<div class="item-card"><h3>تحميل الملف</h3><button class="close-btn" style="width: 100%;">تحميل PDF</button></div>`
+            }
         };
 
         function openM(key) {
             document.getElementById('mT').innerText = data[key].t;
             document.getElementById('mB').innerHTML = data[key].b;
             document.getElementById('modal').style.display = 'block';
-            gsap.fromTo(".modal-content", { opacity: 0, y: 20 }, { opacity: 1, y: 0 });
+            document.body.style.overflow = 'hidden';
         }
-
-        function closeM() { document.getElementById('modal').style.display = 'none'; }
-
-        function startIphoneSimulation() {
-            closeM();
-            gsap.to("#main-content", { opacity: 0, duration: 0.5, onComplete: () => {
-                document.getElementById('main-content').style.display = 'none';
-                document.getElementById('iphone-environment').style.display = 'flex';
-                gsap.fromTo("#iphone-device", { y: 500, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "back.out" });
-            }});
-        }
-
-        function exitIphoneMode() {
-            document.getElementById('iphone-environment').style.display = 'none';
-            document.getElementById('main-content').style.display = 'flex';
-            gsap.to("#main-content", { opacity: 1 });
-        }
-
+        function closeM() { document.getElementById('modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
+        
+        function launchSim() { closeM(); document.getElementById('sim-overlay').style.display = 'flex'; }
+        function exitSim() { document.getElementById('sim-overlay').style.display = 'none'; }
+        
         function openApp(url) {
-            document.getElementById('app-iframe').src = url;
-            gsap.to("#app-view", { y: "0%", duration: 0.5, ease: "power4.out" });
+            document.getElementById('appIframe').src = url;
+            document.getElementById('appLayer').style.display = 'flex';
         }
-
         function closeApp() {
-            gsap.to("#app-view", { y: "100%", duration: 0.4, onComplete: () => {
-                document.getElementById('app-iframe').src = "";
-            }});
+            document.getElementById('appLayer').style.display = 'none';
+            document.getElementById('appIframe').src = "";
         }
-
-        window.onload = () => {
-            gsap.to("header", { opacity: 1, y: 0, duration: 0.8 });
-            gsap.to(".bento-card", { opacity: 1, y: 0, stagger: 0.2 });
-        };
     </script>
 </body>
 </html>
