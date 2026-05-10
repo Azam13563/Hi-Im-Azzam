@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Router Speed | Space Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Router Speed | Space Simulator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
@@ -20,11 +20,39 @@
             height: 100%;
             background-color: var(--dark-bg);
             font-family: 'Cairo', sans-serif;
-            overflow: hidden; /* منع التمرير نهائياً */
+            overflow: hidden;
             color: white;
+            touch-action: manipulation;
         }
 
         .font-space { font-family: 'Orbitron', sans-serif; }
+
+        /* --- Intro Splash Screen --- */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--dark-bg);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        .loader-ring {
+            width: 80px;
+            height: 80px;
+            border: 2px solid transparent;
+            border-top-color: var(--cyan);
+            border-bottom-color: var(--purple);
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
         /* --- Canvas Background --- */
         #space-canvas {
@@ -48,6 +76,7 @@
             align-items: center;
             justify-content: center;
             z-index: 10;
+            padding: 1rem;
             transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -60,8 +89,16 @@
         /* --- The GO Button --- */
         .go-ring {
             position: relative;
-            width: 180px;
-            height: 180px;
+            width: 140px;
+            height: 140px;
+        }
+        @media (min-width: 768px) {
+            .go-ring { width: 180px; height: 180px; }
+        }
+
+        .go-btn-inner {
+            position: absolute;
+            inset: 0;
             border-radius: 50%;
             background: rgba(0, 240, 255, 0.05);
             border: 2px solid rgba(0, 240, 255, 0.3);
@@ -70,52 +107,54 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.4s ease;
-            box-shadow: 0 0 40px rgba(0, 240, 255, 0);
+            z-index: 5;
         }
 
         .go-ring::before, .go-ring::after {
             content: '';
             position: absolute;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            transform: translate(-50%, -50%);
             border-radius: 50%;
             border: 2px solid var(--cyan);
             animation: ripple 3s infinite linear;
-            box-shadow: 0 0 20px var(--cyan), inset 0 0 20px var(--cyan);
+            box-shadow: 0 0 20px var(--cyan);
+            pointer-events: none;
         }
         
         .go-ring::after { animation-delay: -1.5s; }
 
-        .go-ring:hover {
+        .go-btn-inner:hover {
             transform: scale(1.05);
             background: rgba(0, 240, 255, 0.1);
             border-color: var(--cyan);
-            box-shadow: 0 0 60px rgba(0, 240, 255, 0.4);
         }
 
         .go-text {
-            font-size: 3.5rem;
+            font-size: 2.5rem;
             font-weight: 900;
-            letter-spacing: 4px;
+            letter-spacing: 2px;
             text-shadow: 0 0 20px var(--cyan);
-            z-index: 2;
         }
 
         @keyframes ripple {
-            0% { width: 100%; height: 100%; opacity: 1; border-width: 4px; }
-            100% { width: 250%; height: 250%; opacity: 0; border-width: 0px; }
+            0% { width: 100%; height: 100%; opacity: 1; border-width: 3px; }
+            100% { width: 220%; height: 220%; opacity: 0; border-width: 0px; }
         }
 
-        /* --- Rocket Animation --- */
+        /* --- Rocket --- */
         #rocket-container {
             position: absolute;
-            bottom: -200px; /* مخفي بالأسفل */
+            bottom: -200px;
             left: 50%;
             transform: translateX(-50%);
-            width: 100px;
+            width: 80px;
             z-index: 20;
             display: none;
         }
 
-        .rocket-svg { width: 100%; filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.6)); }
+        .rocket-svg { width: 100%; filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.6)); }
         
         .flame {
             transform-origin: center top;
@@ -127,23 +166,12 @@
             100% { transform: scaleY(1.3); opacity: 0.8; fill: #b026ff; }
         }
 
-        /* حركات الصاروخ باستخدام CSS Classes */
-        .rocket-shake {
-            display: block !important;
-            animation: prepare-launch 1.5s ease-in-out forwards;
-        }
-        .rocket-blast {
-            display: block !important;
-            animation: blast-off 1s cubic-bezier(0.5, 0, 0.2, 1) forwards;
-        }
+        .rocket-shake { display: block !important; animation: prepare-launch 1.5s ease-in-out forwards; }
+        .rocket-blast { display: block !important; animation: blast-off 1s cubic-bezier(0.5, 0, 0.2, 1) forwards; }
 
         @keyframes prepare-launch {
             0% { bottom: -200px; }
             30% { bottom: 20%; transform: translateX(-50%) rotate(0deg); }
-            40% { bottom: 20%; transform: translateX(-52%) rotate(-2deg); }
-            50% { bottom: 20%; transform: translateX(-48%) rotate(2deg); }
-            60% { bottom: 20%; transform: translateX(-51%) rotate(-1deg); }
-            70% { bottom: 20%; transform: translateX(-49%) rotate(1deg); }
             100% { bottom: 20%; transform: translateX(-50%) rotate(0deg); }
         }
 
@@ -154,184 +182,234 @@
 
         /* --- Glass Dashboard --- */
         .glass-panel {
-            background: rgba(10, 12, 20, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(10, 12, 20, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
-            padding: 2.5rem;
-            width: 90%;
-            max-width: 900px;
+            border-radius: 24px;
+            padding: 1.5rem;
+            width: 95%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* --- Circular Gauge --- */
         .gauge-wrapper {
             position: relative;
-            width: 320px;
-            height: 320px;
-            margin: 0 auto;
+            width: 180px;
+            height: 180px;
+            margin: 0.5rem auto;
         }
 
-        .gauge-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 14; }
+        .gauge-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 10; }
         .gauge-bar {
             fill: none;
             stroke: var(--cyan);
-            stroke-width: 14;
+            stroke-width: 10;
             stroke-linecap: round;
-            stroke-dasharray: 880; /* 2 * PI * 140 */
+            stroke-dasharray: 880; 
             stroke-dashoffset: 880;
-            transition: stroke-dashoffset 0.2s linear, stroke 0.4s ease;
-            filter: drop-shadow(0 0 15px currentColor);
+            transition: stroke-dashoffset 0.3s ease-out;
+            filter: drop-shadow(0 0 10px currentColor);
         }
 
         .speed-number {
-            font-size: 5.5rem;
+            font-size: 2.5rem;
             font-weight: 900;
-            text-shadow: 0 0 20px currentColor;
+            text-shadow: 0 0 15px currentColor;
             line-height: 1;
         }
 
         /* Stats Blocks */
         .stat-block {
             text-align: center;
-            padding: 1rem;
-            border-radius: 16px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.02);
-            transition: all 0.3s ease;
+            padding: 0.75rem 0.25rem;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.4s ease;
         }
-        .stat-block.active-down { border-color: var(--cyan); box-shadow: 0 0 30px rgba(0,240,255,0.1); }
-        .stat-block.active-up { border-color: var(--purple); box-shadow: 0 0 30px rgba(176,38,255,0.1); }
+        .stat-block.active-down { border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,240,255,0.2); }
+        .stat-block.active-up { border-color: var(--purple); box-shadow: 0 0 20px rgba(176,38,255,0.2); }
 
-        .glow-text-cyan { color: var(--cyan); text-shadow: 0 0 10px rgba(0,240,255,0.5); }
-        .glow-text-purple { color: var(--purple); text-shadow: 0 0 10px rgba(176,38,255,0.5); }
+        .glow-text-cyan { color: var(--cyan); text-shadow: 0 0 8px rgba(0,240,255,0.4); }
+        .glow-text-purple { color: var(--purple); text-shadow: 0 0 8px rgba(176,38,255,0.4); }
+
+        /* Rating System Styles */
+        #rating-section {
+            width: 100%;
+            margin-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1rem;
+            display: none; /* Shown after test */
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+
+        .rating-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .star {
+            color: #444; /* Empty star color */
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+        .star.filled { color: #FFD700; filter: drop-shadow(0 0 5px #FFD700); }
 
     </style>
 </head>
 <body>
 
-    <!-- 3D Starfield Background -->
+    <!-- Splash Screen Intro -->
+    <div id="splash-screen">
+        <div class="loader-ring mb-6"></div>
+        <div class="font-space font-black text-2xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500">
+            SYSTEM BOOTING...
+        </div>
+        <div class="text-[10px] text-gray-500 mt-2 font-space tracking-widest uppercase">Initializing Orbital Link</div>
+    </div>
+
     <canvas id="space-canvas"></canvas>
 
-    <!-- Header Logo (Always Visible) -->
-    <div class="absolute top-6 left-6 md:top-10 md:left-10 z-50 flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full border-2 border-cyan-400 flex items-center justify-center shadow-[0_0_15px_#00f0ff]">
-            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+    <!-- Header Logo -->
+    <div class="absolute top-4 left-4 z-50 flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full border-2 border-cyan-400 flex items-center justify-center shadow-[0_0_10px_#00f0ff]">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         </div>
-        <div class="font-space font-bold tracking-widest text-xl bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-white">
-            ROUTER SPEED
+        <div class="font-space font-bold tracking-wider text-xs bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-white">
+            SIMULATOR MODE
         </div>
     </div>
 
-    <!-- VIEW 1: Start Button -->
+    <!-- VIEW 1: Start -->
     <section id="view-start" class="view-section">
-        <div class="text-center mb-12">
-            <h1 class="text-3xl md:text-5xl font-black mb-4 text-white/90 tracking-wide">اختبر سرعة الأنترنت</h1>
-            <p class="text-gray-400 font-space tracking-widest text-sm" id="isp-info">INITIALIZING LINK...</p>
+        <div class="text-center mb-10">
+            <h1 class="text-2xl font-black mb-2 text-white/90 tracking-wide">قياس سرعة الأنترنت</h1>
+            <p class="text-gray-500 font-space tracking-widest text-[10px]" id="isp-info">SYSTEM READY • SECURE LINK</p>
         </div>
 
-        <div class="go-ring" id="btn-go">
-            <span class="go-text font-space">GO</span>
+        <div class="go-ring">
+            <div class="go-btn-inner" id="btn-go">
+                <span class="go-text font-space">GO</span>
+            </div>
         </div>
     </section>
 
-    <!-- VIEW 2: The Rocket Transition -->
+    <!-- VIEW 2: Rocket -->
     <div id="rocket-container">
-        <!-- Custom Sci-Fi Rocket SVG -->
         <svg class="rocket-svg" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
-            <!-- Rocket Body -->
             <path d="M50 10 C 65 30, 75 60, 70 100 L 30 100 C 25 60, 35 30, 50 10 Z" fill="#ffffff"/>
-            <!-- Window -->
             <circle cx="50" cy="50" r="10" fill="#05050b" stroke="#00f0ff" stroke-width="3"/>
-            <!-- Fins -->
             <path d="M30 80 L 10 110 L 30 100 Z" fill="#b026ff"/>
             <path d="M70 80 L 90 110 L 70 100 Z" fill="#b026ff"/>
-            <!-- Thruster -->
             <path d="M40 100 L 60 100 L 55 110 L 45 110 Z" fill="#333"/>
-            <!-- Flame -->
             <path class="flame" d="M45 110 L 55 110 L 50 150 Z" fill="#00f0ff"/>
         </svg>
     </div>
 
-    <!-- VIEW 3: Main Dashboard -->
+    <!-- VIEW 3: Dashboard -->
     <section id="view-dashboard" class="view-section hidden-view">
-        <div class="glass-panel flex flex-col items-center">
+        <div class="glass-panel">
+            <div id="test-phase" class="text-[10px] font-space tracking-[0.2em] text-cyan-400 mb-2 uppercase">SIMULATING LINK</div>
             
-            <!-- Phase Indicator -->
-            <div id="test-phase" class="text-xs font-space tracking-[0.3em] text-cyan-400 mb-2 uppercase">ANALYZING LINK</div>
-            
-            <!-- Gauge Area -->
-            <div class="gauge-wrapper" id="gauge-box">
+            <div class="gauge-wrapper">
                 <svg viewBox="0 0 300 300" class="w-full h-full transform -rotate-90">
                     <circle cx="150" cy="150" r="140" class="gauge-bg" />
                     <circle id="gauge-bar" cx="150" cy="150" r="140" class="gauge-bar" />
                 </svg>
                 <div class="absolute inset-0 flex flex-col items-center justify-center">
                     <span id="speed-val" class="speed-number font-space" style="color: var(--cyan);">0</span>
-                    <span class="text-gray-400 font-bold tracking-widest mt-2">MBPS</span>
+                    <span class="text-gray-500 font-bold tracking-widest text-[10px] mt-1">MBPS</span>
                 </div>
             </div>
 
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full mt-10">
-                <!-- Ping -->
+            <div class="grid grid-cols-2 gap-3 w-full mt-2">
                 <div class="stat-block">
-                    <div class="text-[10px] text-gray-500 font-space tracking-widest mb-2">PING</div>
+                    <div class="text-[8px] text-gray-500 font-space tracking-tighter mb-1 uppercase">Latency</div>
                     <div class="flex items-baseline justify-center gap-1">
-                        <span id="val-ping" class="text-2xl font-black font-space text-white">--</span>
-                        <span class="text-xs text-gray-500">ms</span>
+                        <span id="val-ping" class="text-xl font-black font-space text-white">--</span>
+                        <span class="text-[8px] text-gray-500">ms</span>
                     </div>
                 </div>
-                <!-- Jitter -->
                 <div class="stat-block">
-                    <div class="text-[10px] text-gray-500 font-space tracking-widest mb-2">JITTER</div>
+                    <div class="text-[8px] text-gray-500 font-space tracking-tighter mb-1 uppercase">Stability</div>
                     <div class="flex items-baseline justify-center gap-1">
-                        <span id="val-jitter" class="text-2xl font-black font-space text-white">--</span>
-                        <span class="text-xs text-gray-500">ms</span>
+                        <span id="val-jitter" class="text-xl font-black font-space text-white">--</span>
+                        <span class="text-[8px] text-gray-500">ms</span>
                     </div>
                 </div>
-                <!-- Download -->
                 <div class="stat-block" id="block-down">
-                    <div class="text-[10px] text-cyan-400 font-space tracking-widest mb-2 flex justify-center items-center gap-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-                        DOWNLOAD
+                    <div class="text-[8px] text-cyan-400 font-space tracking-tighter mb-1 flex justify-center items-center gap-1 uppercase">
+                        Download
                     </div>
                     <div class="flex items-baseline justify-center gap-1">
-                        <span id="val-down" class="text-2xl font-black font-space glow-text-cyan">--</span>
-                        <span class="text-xs text-cyan-500/50">Mbps</span>
+                        <span id="val-down" class="text-xl font-black font-space glow-text-cyan">--</span>
+                        <span class="text-[8px] text-cyan-500/50">Mbps</span>
                     </div>
                 </div>
-                <!-- Upload -->
                 <div class="stat-block" id="block-up">
-                    <div class="text-[10px] text-purple-400 font-space tracking-widest mb-2 flex justify-center items-center gap-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                        UPLOAD
+                    <div class="text-[8px] text-purple-400 font-space tracking-tighter mb-1 flex justify-center items-center gap-1 uppercase">
+                        Upload
                     </div>
                     <div class="flex items-baseline justify-center gap-1">
-                        <span id="val-up" class="text-2xl font-black font-space glow-text-purple">--</span>
-                        <span class="text-xs text-purple-500/50">Mbps</span>
+                        <span id="val-up" class="text-xl font-black font-space glow-text-purple">--</span>
+                        <span class="text-[8px] text-purple-500/50">Mbps</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Rating Section -->
+            <div id="rating-section">
+                <div class="rating-row">
+                    <span class="text-[11px] font-bold text-gray-300">ألعاب الأونلاين (Gaming)</span>
+                    <div class="stars-container" id="stars-gaming">
+                        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                    </div>
+                </div>
+                <div class="rating-row">
+                    <span class="text-[11px] font-bold text-gray-300">بث الفيديوهات (Streaming)</span>
+                    <div class="stars-container" id="stars-streaming">
+                        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                    </div>
+                </div>
+                <div class="rating-row">
+                    <span class="text-[11px] font-bold text-gray-300">تصفح و مشاهدة (Browsing)</span>
+                    <div class="stars-container" id="stars-browsing">
+                        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
                     </div>
                 </div>
             </div>
             
-            <!-- Result Action (Hidden initially) -->
-            <button id="btn-restart" class="mt-8 px-8 py-3 rounded-full border border-white/20 text-white font-space tracking-widest text-sm hover:bg-white hover:text-black transition-all hidden opacity-0">
-                REBOOT TEST
+            <button id="btn-restart" class="mt-4 px-8 py-2 rounded-full border border-white/20 text-white font-space tracking-widest text-[10px] hover:bg-white hover:text-black transition-all hidden opacity-0">
+                RE-SIMULATE
             </button>
         </div>
     </section>
 
     <script>
-        // ==========================================
-        // 1. 3D WARP SPEED STARFIELD CANVAS
-        // ==========================================
+        // Splash Screen Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                splash.style.opacity = '0';
+                setTimeout(() => splash.style.visibility = 'hidden', 1000);
+            }, 2500); // Intro lasts 2.5s
+        });
+
+        // 1. Starfield Engine
         const canvas = document.getElementById('space-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
         let stars = [];
-        const numStars = 400;
-        let speedMultiplier = 1; // 1 = idle, 15 = warp speed
+        const numStars = 200;
+        let speedMultiplier = 1;
         let targetSpeed = 1;
 
         function initCanvas() {
@@ -352,51 +430,38 @@
         initCanvas();
 
         function drawStars() {
-            // Smoothly interpolate speed
             speedMultiplier += (targetSpeed - speedMultiplier) * 0.05;
-
-            ctx.fillStyle = 'rgba(5, 5, 11, 0.3)'; // Trail effect
+            ctx.fillStyle = 'rgba(5, 5, 11, 0.4)'; 
             ctx.fillRect(0, 0, width, height);
 
             const cx = width / 2;
             const cy = height / 2;
 
             stars.forEach(star => {
-                // Move star closer
-                star.z -= 2 * speedMultiplier;
-                
-                // Reset if it passes the screen
+                star.z -= 1.5 * speedMultiplier;
                 if(star.z <= 0) {
                     star.x = Math.random() * width - width/2;
                     star.y = Math.random() * height - height/2;
                     star.z = width;
                 }
-
-                // 3D Projection
                 const px = cx + (star.x / star.z) * width;
                 const py = cy + (star.y / star.z) * width;
-                
-                // Scale size based on depth
-                const s = (1 - star.z / width) * 3;
+                const s = Math.max(0.1, (1 - star.z / width) * 2.5);
 
                 ctx.fillStyle = speedMultiplier > 5 ? '#00f0ff' : '#ffffff';
-                ctx.beginPath();
-                ctx.arc(px, py, s, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(px, py, s, 0, Math.PI * 2); ctx.fill();
             });
             requestAnimationFrame(drawStars);
         }
         drawStars();
 
-
-        // ==========================================
-        // 2. UI & ANIMATION CONTROLLER
-        // ==========================================
+        // 2. Simulator Controls
         const viewStart = document.getElementById('view-start');
         const viewDashboard = document.getElementById('view-dashboard');
         const rocket = document.getElementById('rocket-container');
         const btnGo = document.getElementById('btn-go');
         const btnRestart = document.getElementById('btn-restart');
+        const ratingSection = document.getElementById('rating-section');
         
         const ui = {
             phase: document.getElementById('test-phase'),
@@ -407,177 +472,139 @@
             down: document.getElementById('val-down'),
             up: document.getElementById('val-up'),
             blockDown: document.getElementById('block-down'),
-            blockUp: document.getElementById('block-up'),
-            isp: document.getElementById('isp-info')
+            blockUp: document.getElementById('block-up')
         };
 
-        // Fetch IP/ISP on load
-        fetch("https://speed.cloudflare.com/meta").then(r=>r.json()).then(d => {
-            ui.isp.innerText = `${d.asOrganization} / ${d.clientIp}`;
-        }).catch(()=>{});
-
-        // Gauge Logic (Logarithmic scale for realistic feel)
         function updateGauge(mbps, color) {
-            ui.speed.innerText = mbps > 10 ? Math.round(mbps) : mbps.toFixed(1);
+            ui.speed.innerText = Math.round(mbps);
             ui.speed.style.color = color;
             ui.bar.style.stroke = color;
-            
-            let percent = mbps > 0 ? (Math.log10(mbps + 1) / 3.5) : 0;
-            percent = Math.min(Math.max(percent, 0), 1);
-            
+            let percent = Math.min(mbps / 1000, 1);
             const offset = 880 - (percent * 880);
             ui.bar.style.strokeDashoffset = offset;
         }
 
-        // ==========================================
-        // 3. NETWORK SPEED TEST LOGIC
-        // ==========================================
-        const CF_DOWN = "https://speed.cloudflare.com/__down";
-        const CF_UP = "https://speed.cloudflare.com/__up";
-
-        async function doPing() {
-            ui.phase.innerText = "MEASURING LATENCY";
-            ui.phase.style.color = "white";
-            let pings = [];
-            for(let i=0; i<4; i++) {
-                const s = performance.now();
-                try { await fetch(`${CF_DOWN}?bytes=0&t=${Date.now()}`, {mode:'no-cors'}); } catch(e){}
-                pings.push(performance.now() - s);
-            }
-            const avg = Math.max(pings.reduce((a,b)=>a+b,0)/pings.length - 15, 5);
-            ui.ping.innerText = avg.toFixed(0);
-            ui.jitter.innerText = (Math.abs(pings[0] - avg)/2).toFixed(1);
+        function setStars(containerId, rating) {
+            const container = document.getElementById(containerId);
+            const stars = container.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('filled');
+                } else {
+                    star.classList.remove('filled');
+                }
+            });
         }
 
-        async function doDownload() {
-            ui.phase.innerText = "DOWNLOADING DATA";
+        // 3. Simulation Logic
+        async function runSimulation() {
+            // Reset ratings
+            ratingSection.style.display = 'none';
+            ratingSection.style.opacity = '0';
+
+            // Ping simulation
+            ui.phase.innerText = "MEASURING DEPTH";
+            ui.phase.style.color = "white";
+            await new Promise(r => setTimeout(r, 1000));
+            
+            const finalPing = Math.random() * 15 + 5;
+            ui.ping.innerText = finalPing.toFixed(0);
+            ui.jitter.innerText = (Math.random() * 3 + 1).toFixed(1);
+
+            // Download simulation
+            ui.phase.innerText = "RECEIVING DATA";
             ui.phase.style.color = "var(--cyan)";
             ui.blockDown.classList.add('active-down');
             
-            return new Promise((resolve) => {
-                // Using Multi-stream for accuracy
-                let totalLoaded = 0;
-                let active = 2;
-                const start = performance.now();
-                let finalMbps = 0;
+            let currentDown = 0;
+            let targetDown = Math.floor(Math.random() * 400) + 500; // 500-900 Mbps
+            
+            for(let i=0; i<40; i++) {
+                currentDown += (targetDown - currentDown) * 0.15 + (Math.random() * 40 - 20);
+                updateGauge(currentDown, "var(--cyan)");
+                await new Promise(r => setTimeout(r, 80));
+            }
+            ui.down.innerText = Math.round(currentDown);
+            ui.blockDown.classList.remove('active-down');
+            await new Promise(r => setTimeout(r, 600));
 
-                const timer = setInterval(() => {
-                    const elapsed = (performance.now() - start) / 1000;
-                    if(elapsed > 0.3) {
-                        finalMbps = (totalLoaded * 8 / elapsed) / 1000000;
-                        updateGauge(finalMbps, "var(--cyan)");
-                    }
-                }, 100);
-
-                for(let i=0; i<2; i++) {
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('GET', `${CF_DOWN}?bytes=20000000&t=${Date.now()}_${i}`, true);
-                    let last = 0;
-                    xhr.onprogress = (e) => { totalLoaded += (e.loaded - last); last = e.loaded; };
-                    xhr.onload = xhr.onerror = () => {
-                        active--;
-                        if(active === 0) {
-                            clearInterval(timer);
-                            ui.down.innerText = finalMbps.toFixed(1);
-                            ui.blockDown.classList.remove('active-down');
-                            resolve();
-                        }
-                    };
-                    xhr.send();
-                }
-            });
-        }
-
-        async function doUpload() {
-            ui.phase.innerText = "UPLOADING DATA";
+            // Upload simulation
+            ui.phase.innerText = "TRANSMITTING DATA";
             ui.phase.style.color = "var(--purple)";
             ui.blockUp.classList.add('active-up');
-            updateGauge(0, "var(--purple)");
+            
+            let currentUp = 0;
+            let targetUp = Math.floor(Math.random() * 200) + 100; // 100-300 Mbps
+            
+            for(let i=0; i<30; i++) {
+                currentUp += (targetUp - currentUp) * 0.2 + (Math.random() * 20 - 10);
+                updateGauge(currentUp, "var(--purple)");
+                await new Promise(r => setTimeout(r, 80));
+            }
+            ui.up.innerText = Math.round(currentUp);
+            ui.blockUp.classList.remove('active-up');
+            
+            // Finish
+            ui.phase.innerText = "SIMULATION COMPLETE";
+            ui.phase.style.color = "white";
+            updateGauge(0, "rgba(255,255,255,0.1)");
+            targetSpeed = 1;
 
-            return new Promise((resolve) => {
-                const xhr = new XMLHttpRequest();
-                const data = new Uint8Array(4000000); // 4MB
-                const start = performance.now();
-                let finalMbps = 0;
+            // Show Ratings based on simulated numbers
+            showRatings(currentDown, finalPing);
 
-                xhr.upload.onprogress = (e) => {
-                    const elapsed = (performance.now() - start) / 1000;
-                    if(elapsed > 0.2) {
-                        finalMbps = (e.loaded * 8 / elapsed) / 1000000;
-                        updateGauge(finalMbps, "var(--purple)");
-                    }
-                };
-                xhr.onload = xhr.onerror = () => {
-                    ui.up.innerText = finalMbps.toFixed(1);
-                    ui.blockUp.classList.remove('active-up');
-                    resolve();
-                };
-                xhr.open('POST', CF_UP, true);
-                xhr.send(data);
-            });
+            btnRestart.style.display = 'block';
+            setTimeout(() => btnRestart.style.opacity = '1', 100);
         }
 
-        // ==========================================
-        // 4. MASTER SEQUENCE (THE SHOW)
-        // ==========================================
+        function showRatings(down, ping) {
+            ratingSection.style.display = 'block';
+            setTimeout(() => {
+                ratingSection.style.opacity = '1';
+                ratingSection.style.transform = 'translateY(0)';
+            }, 50);
+
+            // Logic for Stars
+            // Gaming: Depends heavy on Ping
+            let gamingStars = ping < 15 ? 5 : (ping < 30 ? 4 : 3);
+            // Streaming: Depends on Download
+            let streamingStars = down > 600 ? 5 : (down > 300 ? 4 : 3);
+            // Browsing: Usually always good in high speeds
+            let browsingStars = down > 100 ? 5 : 4;
+
+            setStars('stars-gaming', gamingStars);
+            setStars('stars-streaming', streamingStars);
+            setStars('stars-browsing', browsingStars);
+        }
+
         btnGo.addEventListener('click', () => {
-            // Step 1: Hide Start View & Show Rocket Shaking
             viewStart.classList.add('hidden-view');
             rocket.classList.add('rocket-shake');
 
-            // Step 2: Blast off after 1.5s
             setTimeout(() => {
                 rocket.classList.remove('rocket-shake');
                 rocket.classList.add('rocket-blast');
-                targetSpeed = 15; // WARP SPEED ENGAGED!
-            }, 1500);
+                targetSpeed = 15;
+            }, 1200);
 
-            // Step 3: Show Dashboard and Start Test after Rocket flies away
-            setTimeout(async () => {
-                rocket.style.display = 'none'; // hide rocket completely
+            setTimeout(() => {
+                rocket.style.display = 'none';
                 viewDashboard.classList.remove('hidden-view');
-
-                try {
-                    await doPing();
-                    await new Promise(r => setTimeout(r, 500));
-                    
-                    await doDownload();
-                    await new Promise(r => setTimeout(r, 500));
-                    
-                    await doUpload();
-
-                } catch (e) {
-                    console.log("Error during test", e);
-                } finally {
-                    // Test Finished
-                    targetSpeed = 1; // Return to normal space speed
-                    ui.phase.innerText = "SYSTEM SECURED";
-                    ui.phase.style.color = "white";
-                    updateGauge(0, "rgba(255,255,255,0.1)");
-                    
-                    // Show Restart button smoothly
-                    btnRestart.style.display = 'block';
-                    setTimeout(() => btnRestart.style.opacity = '1', 100);
-                }
-
-            }, 2500); // Wait for blast off animation
+                runSimulation();
+            }, 2200);
         });
 
-        // Restart logic
         btnRestart.addEventListener('click', () => {
-            // Reset UI
             btnRestart.style.opacity = '0';
             setTimeout(() => btnRestart.style.display = 'none', 300);
-            
             ui.ping.innerText = "--"; ui.jitter.innerText = "--";
             ui.down.innerText = "--"; ui.up.innerText = "--";
-            
             viewDashboard.classList.add('hidden-view');
-            
             setTimeout(() => {
                 viewStart.classList.remove('hidden-view');
-                rocket.className = ''; // Reset rocket classes
+                rocket.className = '';
                 rocket.style.display = '';
+                ratingSection.style.display = 'none';
             }, 800);
         });
 
