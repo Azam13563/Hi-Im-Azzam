@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>تطبيق تحفيظ القرآن -  </title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- SIDE MENU / HAMBURGER -->
+  <div id="overlay" class="overlay hidden"></div>
+  <aside id="sideMenu" class="side-menu hidden" aria-hidden="true">
+    <div class="side-header">
+      <div class="avatar">
+        <img src="azampo.jpg" alt="avatar" />
+      </div>
+      <div class="side-user">
+        <strong>اهلا عزام بن سليمان</strong>
+        <span class="muted"> طالب</span>
+      </div>
+      <button id="closeMenu" class="btn-close" aria-label="إغلاق القائمة">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <nav class="side-nav">
+      <button class="side-item">
+        <i class="fas fa-user"></i>
+        <span>ملفي</span>
+      </button>
+      <button class="side-item">
+        <i class="fas fa-bell"></i>
+        <span>الإشعارات</span>
+      </button>
+      <button class="side-item" id="openPlanFromMenu">
+        <i class="fas fa-calendar-alt"></i>
+        <span>خطتي</span>
+      </button>
+      <div class="side-divider"></div>
+      <div class="side-item row">
+        <span>الوضع الليلي</span>
+        <label class="switch">
+          <input id="themeToggle" type="checkbox" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="side-divider"></div>
+      <button class="side-item">
+        <i class="fas fa-cog"></i>
+        <span>الإعدادات</span>
+      </button>
+      <button class="side-item">
+        <i class="fas fa-question-circle"></i>
+        <span>مساعدة</span>
+      </button>
+    </nav>
+  </aside>
+
+  <!-- APP FRAME -->
+  <div class="app">
+    <header class="topbar">
+      <button id="hamburger" class="hamburger" aria-label="قائمة">
+        <i class="fas fa-bars"></i>
+      </button>
+      
+      <div class="profile">
+        <div class="user-profile">
+          <img src="azampo.jpg" alt="عزام" class="user-avatar" />
+          <span class="user-name">اهلا عزام بن سليمان</span>
+        </div>
+        <div class="notification">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge">3</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <!-- main cards / content -->
+      <section id="homePage" class="page active">
+        <!-- لوحة الإعلان -->
+        <div class="ad-banner">
+          <div class="ad-content">
+            <h3>📢 إعلان هام من المشرف</h3>
+            <p>انضم إلى دورة التجويد المكثفة التي تبدأ الأسبوع القادم. احجز مكانك الآن!</p>
+          </div>
+          <button class="ad-action">تعرف أكثر</button>
+        </div>
+
+        <!-- بطاقة ابدأ بتعلم الفاتحة -->
+        <div class="learn-card">
+          <div class="learn-content">
+            <h3>ابدأ بتعلم الفاتحة</h3>
+            <p>انطلق في رحلة تعلم سورة الفاتحة مع أفضل المعلمين</p>
+          </div>
+          <div class="learn-arrow">
+            <i class="fas fa-arrow-left"></i>
+          </div>
+        </div>
+
+        <!-- بطاقة الوقت المحسنة -->
+        <div class="big-card">
+          <h2>المسار: مقرأتك عام</h2>
+          <div class="time-row">
+            <div class="time-col">
+              <small>الدقائق المتاحة</small>
+              <strong class="big-num">12 دقيقة</strong>
+            </div>
+            <div class="time-col">
+              <small>الدقائق المستهلكة</small>
+              <strong class="big-num accent">18 دقيقة</strong>
+            </div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 60%"></div>
+            </div>
+            <p class="muted">إجمالي الرصيد: 30 دقيقة</p>
+          </div>
+        </div>
+
+        <!-- بطاقة ابدأ جلستك المحسنة -->
+        <div class="start-card">
+          <div class="start-header">
+            <h3>ابدأ جلستك</h3>
+            <div class="session-info">
+              <i class="fas fa-info-circle"></i>
+              <div class="info-tooltip">
+                اختر طريقة البدء المناسبة لك. يمكنك اختيار معلم محدد أو ترك النظام يختار لك.
+              </div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="action">
+              <div class="action-icon">
+                <i class="fas fa-user-check"></i>
+              </div>
+              <span>اختر معلمك بنفسك</span>
+            </button>
+            <button class="action">
+              <div class="action-icon">
+                <i class="fas fa-random"></i>
+              </div>
+              <span>اختر لي مقرئاً متاحاً</span>
+            </button>
+            <button class="action">
+              <div class="action-icon">
+                <i class="fas fa-quran"></i>
+              </div>
+              <span>المصحح الذكي</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="teachersPage" class="page">
+        <h2>المعلمون</h2>
+        <p class="muted">قائمة معلميك المتاحة — تواصل مع المعلمين مباشرة</p>
+        
+        <div class="teachers-grid">
+          <div class="teacher-card">
+            <div class="teacher-avatar">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            <h4>الشيخ أحمد</h4>
+            <p class="muted">متخصص في التجويد</p>
+            <div class="teacher-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star-half-alt"></i>
+            </div>
+            <button class="contact-btn">تواصل مع المعلم</button>
+          </div>
+          
+          <div class="teacher-card">
+            <div class="teacher-avatar">
+              <i class="fas fa-user-graduate"></i>
+            </div>
+            <h4>الدكتور محمد</h4>
+            <p class="muted">خبير في التفسير</p>
+            <div class="teacher-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <button class="contact-btn">تواصل مع المعلم</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="statsPage" class="page">
+        <h2>تقارير</h2>
+        <p class="muted">إحصاءات متقدمة لتقدمك</p>
+        
+        <div class="stats-cards">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+              <h4>٤٥ ساعة</h4>
+              <p>وقت الدراسة</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-content">
+              <h4>٣ أجزاء</h4>
+              <p>تم حفظها</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="planPage" class="page">
+        <div class="plan-header">
+          <h2>خطتي</h2>
+          <button class="add-plan-btn" id="addPlanBtn">
+            <i class="fas fa-plus"></i>
+            إضافة خطة جديدة
+          </button>
+        </div>
+        <p class="muted">إدارة خططك الدراسية وتتبع تقدمك</p>
+        
+        <div class="plan-cards" id="planCardsContainer">
+          <div class="plan-card" data-plan-id="1">
+            <div class="plan-card-header">
+              <h4>خطة حفظ الجزء الأول</h4>
+              <div class="plan-actions">
+                <button class="edit-plan" data-plan-id="1"><i class="fas fa-edit"></i></button>
+                <button class="delete-plan" data-plan-id="1"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+            <div class="plan-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 65%"></div>
+              </div>
+              <span>65% مكتمل</span>
+            </div>
+            <div class="plan-goal">
+              <strong>الهدف:</strong> حفظ 20 صفحة خلال شهر
+            </div>
+          </div>
+          
+          <div class="plan-card" data-plan-id="2">
+            <div class="plan-card-header">
+              <h4>دروس التجويد</h4>
+              <div class="plan-actions">
+                <button class="edit-plan" data-plan-id="2"><i class="fas fa-edit"></i></button>
+                <button class="delete-plan" data-plan-id="2"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+            <div class="plan-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 30%"></div>
+              </div>
+              <span>30% مكتمل</span>
+            </div>
+            <div class="plan-goal">
+              <strong>الهدف:</strong> إتقان أحكام التجويد الأساسية
+            </div>
+          </div>
+        </div>
+
+        <!-- نموذج إضافة خطة جديدة -->
+        <div id="planModal" class="modal hidden">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 id="modalTitle">إضافة خطة جديدة</h3>
+              <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="planTitle">عنوان الخطة</label>
+                <input type="text" id="planTitle" placeholder="أدخل عنوان الخطة">
+              </div>
+              <div class="form-group">
+                <label for="planGoal">الهدف</label>
+                <textarea id="planGoal" placeholder="حدد الهدف من هذه الخطة"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="planDuration">المدة الزمنية</label>
+                <select id="planDuration">
+                  <option value="1">أسبوع واحد</option>
+                  <option value="2">أسبوعين</option>
+                  <option value="4">شهر واحد</option>
+                  <option value="8">شهرين</option>
+                  <option value="12">ثلاثة أشهر</option>
+                </select>
+              </div>
+              <button class="submit-plan" id="submitPlanBtn">إضافة الخطة</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="libraryPage" class="page">
+        <h2>مكتبة الأدعية والأحاديث</h2>
+        <p class="muted">مجموعة مختارة من الأدعية والأحاديث النبوية</p>
+        
+        <div class="library-categories">
+          <button class="category-btn active" data-category="all">الكل</button>
+          <button class="category-btn" data-category="prayers">أدعية</button>
+          <button class="category-btn" data-category="hadith">أحاديث</button>
+          <button class="category-btn" data-category="morning">أذكار الصباح</button>
+          <button class="category-btn" data-category="evening">أذكار المساء</button>
+        </div>
+        
+        <div class="library-content">
+          <div class="library-item" data-category="prayers">
+            <div class="item-icon">
+              <i class="fas fa-hands-praying"></i>
+            </div>
+            <div class="item-content">
+              <h4>دعاء بداية الدراسة</h4>
+              <p>اللهم إني أسألك فهم النبيين، وحفظ المرسلين، والملائكة المقربين</p>
+              <span class="item-reference">رواه الترمذي</span>
+            </div>
+            <button class="item-action">
+              <i class="fas fa-bookmark"></i>
+            </button>
+          </div>
+          
+          <div class="library-item" data-category="hadith">
+            <div class="item-icon">
+              <i class="fas fa-book-quran"></i>
+            </div>
+            <div class="item-content">
+              <h4>فضل تعلم القرآن</h4>
+              <p>خيركم من تعلم القرآن وعلمه</p>
+              <span class="item-reference">رواه البخاري</span>
+            </div>
+            <button class="item-action">
+              <i class="fas fa-bookmark"></i>
+            </button>
+          </div>
+          
+          <div class="library-item" data-category="morning">
+            <div class="item-icon">
+              <i class="fas fa-sun"></i>
+            </div>
+            <div class="item-content">
+              <h4>أذكار الصباح</h4>
+              <p>أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له</p>
+              <span class="item-reference">مسلم</span>
+            </div>
+            <button class="item-action">
+              <i class="fas fa-bookmark"></i>
+            </button>
+          </div>
+          
+          <div class="library-item" data-category="evening">
+            <div class="item-icon">
+              <i class="fas fa-moon"></i>
+            </div>
+            <div class="item-content">
+              <h4>أذكار المساء</h4>
+              <p>أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له</p>
+              <span class="item-reference">مسلم</span>
+            </div>
+            <button class="item-action">
+              <i class="fas fa-bookmark"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav" role="navigation" aria-label="قائمة التنقل السفلية">
+      <button class="nav-item active" data-target="homePage" aria-label="الرئيسية">
+        <span class="icon"><i class="fas fa-home"></i></span>
+        <span class="label">الرئيسية</span>
+      </button>
+      <button class="nav-item" data-target="teachersPage" aria-label="المعلمون">
+        <span class="icon"><i class="fas fa-chalkboard-teacher"></i></span>
+        <span class="label">المعلمون</span>
+      </button>
+      <button class="nav-item" data-target="statsPage" aria-label="تقاريري">
+        <span class="icon"><i class="fas fa-chart-bar"></i></span>
+        <span class="label">تقاريري</span>
+      </button>
+      <button class="nav-item" data-target="planPage" id="openPlan" aria-label="خطتي">
+        <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+        <span class="label">خطتي</span>
+      </button>
+     
+    </nav>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
