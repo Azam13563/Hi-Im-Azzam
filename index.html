@@ -114,7 +114,6 @@
         .bento-card i { font-size: 2.8rem; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.4); }
         .bento-card span { font-size: 1.2rem; font-weight: 800; }
 
-        /* لغات البرمجة مظهر فقط */
         .static { cursor: default; }
         .tech-grid {
             display: grid;
@@ -171,7 +170,7 @@
             box-shadow: 0 40px 100px rgba(0,0,0,1);
         }
         .iphone-screen {
-            height: 100%; padding: 50px 20px;
+            height: 100%; padding: 60px 20px;
             background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop') center/cover;
             display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: min-content; gap: 20px;
         }
@@ -184,6 +183,17 @@
             width: 120px; height: 5px; background: #000; border-radius: 10px;
             margin: 10px auto; cursor: pointer;
         }
+        .app-icon-wrapper {
+            display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; transition: 0.2s;
+        }
+        .app-icon-wrapper:active { transform: scale(0.9); }
+        .app-icon {
+            width: 55px; height: 55px; border-radius: 12px; background: #fff; 
+            overflow: hidden; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .app-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .app-name { font-size: 0.65rem; color: #fff; font-weight: 600; text-align: center; }
     </style>
 </head>
 <body>
@@ -239,11 +249,20 @@
     <div id="sim-overlay">
         <div class="iphone-device">
             <div class="iphone-screen">
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;" onclick="openApp('RouterSpeed.html')">
-                    <div style="width: 55px; height: 55px; border-radius: 12px; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                        <img src="ROUTERSPEED.png" style="width: 100%;">
+                <!-- App 1 -->
+                <div class="app-icon-wrapper" onclick="openApp('RouterSpeed.html')">
+                    <div class="app-icon">
+                        <img src="ROUTERSPEED.png">
                     </div>
-                    <span style="font-size: 0.75rem; color: #fff; font-weight: 600;">Router Speed</span>
+                    <span class="app-name">Router Speed</span>
+                </div>
+
+                <!-- New App: Aslam -->
+                <div class="app-icon-wrapper" onclick="openApp('aslam.HTML')">
+                    <div class="app-icon" style="background: #1a1a1a;">
+                        <i class="fa-solid fa-mosque" style="color: #fff; font-size: 1.5rem;"></i>
+                    </div>
+                    <span class="app-name">منظم ديني</span>
                 </div>
             </div>
 
@@ -283,12 +302,19 @@
         function exitSim() { document.getElementById('sim-overlay').style.display = 'none'; }
         
         function openApp(url) {
-            document.getElementById('appIframe').src = url;
-            document.getElementById('appLayer').style.display = 'flex';
+            const layer = document.getElementById('appLayer');
+            const iframe = document.getElementById('appIframe');
+            iframe.src = url;
+            layer.style.display = 'flex';
+            gsap.fromTo(layer, {y: '100%'}, {y: '0%', duration: 0.4, ease: "power2.out"});
         }
+        
         function closeApp() {
-            document.getElementById('appLayer').style.display = 'none';
-            document.getElementById('appIframe').src = "";
+            const layer = document.getElementById('appLayer');
+            gsap.to(layer, {y: '100%', duration: 0.3, ease: "power2.in", onComplete: () => {
+                layer.style.display = 'none';
+                document.getElementById('appIframe').src = "";
+            }});
         }
     </script>
 </body>
